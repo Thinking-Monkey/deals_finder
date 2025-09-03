@@ -2,9 +2,6 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.contrib.auth.models import User
-
-# from .serializers import RegisterSerializer
-    
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -19,26 +16,6 @@ from .serializers import (
     DealSerializer, DealPublicSerializer
 )
 
-
-# class RegisterView(generics.CreateAPIView):
-#     queryset = User.objects.all()
-#     permission_classes = [AllowAny]
-#     serializer_class = RegisterSerializer
-
-#     def post(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         self.perform_create(serializer)
-#         return Response({
-#             _("message"): _("Registration successfully complete. Now you can login into the app.")
-#         }, status=status.HTTP_201_CREATED)
-
-
-# Implementazione della registrazione con generazione di token JWT, qui non si usa più il RegisterSerializer
-# perché il DFUserSerializer gestisce già la creazione dell'utente e il controllo della password e dei campi
-# richiesti viene gestisto direttamente nella RegisterView invece di delegarlo al serializer!
-# Qui è stata usata una classe generica di DRF per la creazione di oggetti (CreateAPIView) per semplicità
-# e chiarezza, ma si poteva fare anche con una funzione come per il login.
 class RegisterView(generics.CreateAPIView):
     queryset = DFUser.objects.all()
     serializer_class = DFUserSerializer

@@ -42,6 +42,7 @@ class DFUser(AbstractBaseUser, PermissionsMixin):
 class Store(models.Model):
     store_id = models.IntegerField(unique=True, primary_key=True)
     store_name = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -55,24 +56,17 @@ class Store(models.Model):
 
 
 class Deal(models.Model):
-    internal_name = models.CharField(max_length=255)
-    title = models.CharField(max_length=500)
     deal_id = models.CharField(max_length=255, unique=True, primary_key=True)
+    thumb = models.URLField(blank=True)
+    title = models.CharField(max_length=500)
     store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name='deals')
-    game_id = models.CharField(max_length=255)
+    store_name = models.CharField(max_length=30, blank=True)  # Copia del nome dello store per facilità di accesso
     sale_price = models.DecimalField(max_digits=10, decimal_places=2)
     normal_price = models.DecimalField(max_digits=10, decimal_places=2)
-    is_on_sale = models.BooleanField(default=False)
-    savings = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    deal_rating = models.DecimalField(max_digits=4, decimal_places=1, default=0)
     metacritic_score = models.IntegerField(null=True, blank=True)
-    steam_rating_text = models.CharField(max_length=255, blank=True)
-    steam_rating_percent = models.IntegerField(null=True, blank=True)
-    steam_rating_count = models.IntegerField(null=True, blank=True)
-    steam_app_id = models.CharField(max_length=255, blank=True)
     release_date = models.DateTimeField(null=True, blank=True)
     last_change = models.DateTimeField(null=True, blank=True)
-    deal_rating = models.DecimalField(max_digits=4, decimal_places=1, default=0)
-    thumb = models.URLField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

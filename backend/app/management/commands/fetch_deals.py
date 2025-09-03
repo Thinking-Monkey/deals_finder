@@ -11,10 +11,6 @@ class Command(BaseCommand):
     
     def add_arguments(self, parser):
         parser.add_argument(
-            '--complete',
-            action='complete'
-            help='Fetch complete data (stores and deals), usefull the first time',
-        parser.add_argument(
             '--stores-only',
             action='store_true',
             help='Fetch only stores data',
@@ -28,17 +24,18 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             if options['deals_only']:
-                self.fetch_deals(options['store_id'], options['max_price'])
+                self.fetch_deals()
             elif options['stores_only']:
                 self.fetch_stores()
             else:
                 # Fetch both stores and deals
                 self.fetch_stores()
-                self.fetch_deals(options['store_id'], options['max_price'])
+                self.fetch_deals()
             
             self.stdout.write(
                 self.style.SUCCESS('Successfully completed data fetch')
             )
+        
         except Exception as e:
             raise CommandError(f'Error during data fetch: {str(e)}')
     
@@ -59,7 +56,6 @@ class Command(BaseCommand):
                 defaults = {
                     'store_name': store_data['storeName'],
                     'is_active': store_data['isActive'] == 1,
-                    'images': store_data.get('images', {}),
                 }
                 
                 store, created = Store.objects.update_or_create(
@@ -85,12 +81,17 @@ class Command(BaseCommand):
         except Exception as e:
             raise CommandError(f'Error processing stores data: {str(e)}')
     
-    def fetch_deals(self, store_id, max_price):
-        """Fetch deals data from CheapShark API"""
-        self.stdout.write(f'Fetching deals data for store {store_id} with max price ${max_price}...')
+    def fetch_deals(self):
+        
+        ids = '1,7,11'
+        dealsNum = 16
+
+        # Fetch deals data from CheapShark API
+        self.stdout.write(f'Fetching deals data for stores Steam(id 1), GOG(id 7), Humble Store(id 11)....')
+        
         
         try:
-            url = f'https://www.cheapshark.com/api/1.0/deals?storeID={store_id}&upperPrice={max_price}'
+            url = f'https://www.cheapshark.com/api/1.0/deals?storeID={ids}&pageSize={dealsNum}'
             response = requests.get(url)
             response.raise_for_status()
             deals_data = response.json()
@@ -115,7 +116,7 @@ class Command(BaseCommand):
                     if deal_data.get('releaseDate') and deal_data['releaseDate'] != '0':
                         try:
                             release_date = datetime.fromtimestamp(
-                                int(deal_data['releaseDate']), tz=timezone.utc
+                                int(deal_data['releaseDate']), tz=timezone.get_current_timezone()
                             )
                         except (ValueError, TypeError):
                             pass
@@ -124,29 +125,22 @@ class Command(BaseCommand):
                     if deal_data.get('lastChange') and deal_data['lastChange'] != '0':
                         try:
                             last_change = datetime.fromtimestamp(
-                                int(deal_data['lastChange']), tz=timezone.utc
+                                int(deal_data['lastChange']), tz=timezone.get_current_timezone()
                             )
                         except (ValueError, TypeError):
                             pass
                     
                     defaults = {
-                        'internal_name': deal_data.get('internalName', ''),
+                        'thumb': deal_data.get('thumb', ''),
                         'title': deal_data.get('title', ''),
                         'store': store_obj,
-                        'game_id': deal_data.get('gameID', ''),
+                        'store_name': store_obj.store_name,
                         'sale_price': Decimal(str(deal_data.get('salePrice', 0))),
                         'normal_price': Decimal(str(deal_data.get('normalPrice', 0))),
-                        'is_on_sale': deal_data.get('isOnSale', '0') == '1',
-                        'savings': Decimal(str(deal_data.get('savings', 0))),
+                        'deal_rating': Decimal(str(deal_data.get('dealRating', 0))),
                         'metacritic_score': int(deal_data['metacriticScore']) if deal_data.get('metacriticScore') else None,
-                        'steam_rating_text': deal_data.get('steamRatingText', ''),
-                        'steam_rating_percent': int(deal_data['steamRatingPercent']) if deal_data.get('steamRatingPercent') else None,
-                        'steam_rating_count': int(deal_data['steamRatingCount']) if deal_data.get('steamRatingCount') else None,
-                        'steam_app_id': deal_data.get('steamAppID', ''),
                         'release_date': release_date,
                         'last_change': last_change,
-                        'deal_rating': Decimal(str(deal_data.get('dealRating', 0))),
-                        'thumb': deal_data.get('thumb', ''),
                     }
                     
                     deal, created = Deal.objects.update_or_create(
@@ -177,12 +171,3 @@ class Command(BaseCommand):
             raise CommandError(f'Error fetching deals: {str(e)}')
         except Exception as e:
             raise CommandError(f'Error processing deals data: {str(e)}')
-    
-    def parse_timestamp(self, timestamp_str):
-        """Parse timestamp from string"""
-        if not timestamp_str or timestamp_str == '0':
-            return None
-        try:
-            return datetime.fromtimestamp(int(timestamp_str), tz=timezone.utc)
-        except (ValueError, TypeError):
-            return None

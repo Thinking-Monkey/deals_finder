@@ -4,7 +4,6 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
 
-
     # Registrazione Utenti e JWT token management
     # Il primo utente che si registra diventa admin
     path('register', views.RegisterView.as_view(), name='register'),  # Per registrarsi e ottenere JWT Tokens

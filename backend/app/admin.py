@@ -36,24 +36,21 @@ class StoreAdmin(admin.ModelAdmin):
 
 @admin.register(Deal)
 class DealAdmin(admin.ModelAdmin):
-    list_display = ('title', 'store', 'sale_price', 'normal_price', 'savings', 'deal_rating', 'is_on_sale', 'created_at')
-    list_filter = ('is_on_sale', 'store', 'created_at', 'metacritic_score')
-    search_fields = ('title', 'internal_name', 'deal_id')
+    list_display = ('title', 'store', 'sale_price', 'normal_price', 'deal_rating', 'created_at')
+    list_filter = ('store', 'created_at', 'metacritic_score')
+    search_fields = ('title', 'deal_id')
     ordering = ('-deal_rating', 'sale_price')
     readonly_fields = ('created_at', 'updated_at', 'deal_id')
     
     fieldsets = (
         ('Informazioni base', {
-            'fields': ('deal_id', 'title', 'internal_name', 'store', 'game_id')
+            'fields': ('deal_id', 'title', 'store')
         }),
         ('Prezzi e sconti', {
-            'fields': ('sale_price', 'normal_price', 'is_on_sale', 'savings', 'deal_rating')
-        }),
-        ('Valutazioni', {
-            'fields': ('metacritic_score', 'steam_rating_text', 'steam_rating_percent', 'steam_rating_count')
+            'fields': ('sale_price', 'normal_price', 'deal_rating')
         }),
         ('Dettagli tecnici', {
-            'fields': ('steam_app_id', 'thumb', 'release_date', 'last_change')
+            'fields': ('metacritic_score', 'thumb', 'release_date', 'last_change')
         }),
         ('Timestamp', {
             'fields': ('created_at', 'updated_at'),
