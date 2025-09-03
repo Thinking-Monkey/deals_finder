@@ -42,8 +42,6 @@ class DFUser(AbstractBaseUser, PermissionsMixin):
 class Store(models.Model):
     store_id = models.IntegerField(unique=True, primary_key=True)
     store_name = models.CharField(max_length=255)
-    is_active = models.BooleanField(default=True)
-    images = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
