@@ -1,0 +1,20 @@
+meta {
+  name: Fetch Deals
+  type: http
+  seq: 5
+}
+
+get {
+  url: https://www.cheapshark.com/api/1.0/deals?storeID=1&upperPrice=15
+  body: none
+  auth: inherit
+}
+
+params:query {
+  storeID: 1
+  upperPrice: 15
+}
+
+settings {
+  encodeUrl: true
+}

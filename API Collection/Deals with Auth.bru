@@ -1,0 +1,19 @@
+meta {
+  name: Deals with Auth
+  type: http
+  seq: 4
+}
+
+get {
+  url: 127.0.0.1:8000/api/deals
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU2OTAwNDU0LCJpYXQiOjE3NTY4OTY4NTQsImp0aSI6IjVhNTQyZTc0OGNkZTQxMmE4YzFjY2Y3MzNlMWY2YzRjIiwidXNlcl9pZCI6IjEwIn0.UrTz2S4PN9ISZj9WKIZqBvlg4Jmo8mp3JysUUCrOuKs
+}
+
+settings {
+  encodeUrl: true
+}
