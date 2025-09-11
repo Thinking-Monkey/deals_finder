@@ -1,5 +1,5 @@
 import 'react'
-import './App.css'
+import Header from './components/Header'
 import Card from './components/Card'
 import Button from './components/Button'
 import DropDownButton from './components/DropDownButton'
@@ -7,10 +7,9 @@ import DropDownButton from './components/DropDownButton'
 export default function App(){
    return (
     <>
+      <Header />
       <Button title="LOAD MORE" />
       <DropDownButton title="NONE" />
-      <br />
-      <br />
       <Card 
         title="Deus Ex: Human Revolution"
         subTitle="Director's Cut"
