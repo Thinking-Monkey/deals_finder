@@ -40,7 +40,7 @@ export default function Card(props: {   title: string,
     }
 
     return (
-        <div className="card w-80 shadow-sm border-1 rounded-t-lg">
+        <div className="card flex flex-col w-80 shadow-sm border-1 rounded-t-lg">
             <figure>
                 <img
                 src={props.imgUrl}
@@ -58,7 +58,7 @@ export default function Card(props: {   title: string,
                 <button type="button" className={cardButtonCss}>{locale(props.dealPrice)}</button>
                 <div className="card-actions justify-end">
                    <p className="font-thin text-s sm:text-base md:text-lg text-center text-white pt-2 leading-relaxed">
-                     Instead of <span className="text-[#FFD504]">{locale(props.price)}</span></p>
+                     Instead of <span className="text-[#d5ff04]">{locale(props.price)}</span></p>
                 </div>
             </div>
         </div>

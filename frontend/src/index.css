@@ -4,26 +4,19 @@
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, Galano Grotesque Alt, Galano Grotesque, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  background: linear-gradient(130deg, #333dd1 0%, #D946EF 45%, #D946EF 60%, #8B5CF6 100%);
-}
-
-body {
-  margin: 0;
   text-align: center;
   place-items: center;
-  display: flex;
-  min-width: 320px;
-  min-height: 100vh;
+  flex-wrap: wrap;
 }
+
+  html {
+    height: auto;
+    min-height: 100%;
+    background: linear-gradient(130deg, #333dd1 0%, #D946EF 45%, #D946EF 60%, #8B5CF6 100%);
+  }
