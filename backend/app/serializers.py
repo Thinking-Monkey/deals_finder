@@ -29,7 +29,7 @@ class DFUserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         if(validated_data.get('is_superuser') is True):
             validated_data["is_staff"] = True
-            user = DFUser.objects.create_user(**validated_data)
+            user = DFUser.objects.create_superuser(**validated_data)
             return user
         else:
             user = DFUser.objects.create_user(**validated_data)

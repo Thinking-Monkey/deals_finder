@@ -1,4 +1,5 @@
 from rest_framework import generics, status
+from collections import defaultdict
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.contrib.auth.models import User
@@ -89,12 +90,18 @@ def deals_list(request):
     # - Utenti non autenticati: i 3 migliori deals per negozio con informazioni limitate, solo per creare la card
     # - Utenti autenticati: tutti i deals con informazioni complete, con paginazione a 8 deal per pagina
     deals = Deal.objects.all()
-    
+
     if not request.user.is_authenticated:
         # Utenti non autenticati: i migliori 3 deals per negozio, uno per negozio
         if deals.exists():
-            random_deals = random.sample(list(deals), min(3, deals.count()))
-            serializer = DealPublicSerializer(random_deals, many=True)
+            deals_by_store = defaultdict(list)
+            for deal in deals:
+                deals_by_store[deal.store].append(deal)
+            top_3_per_store = []
+            for deal in deals_by_store():
+                top_3_per_store.extend(deal)
+
+            serializer = DealPublicSerializer(top_3_per_store, many=True)
         else:
             serializer = DealPublicSerializer([], many=True)
         

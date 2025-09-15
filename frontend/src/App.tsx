@@ -1,28 +1,24 @@
-import 'react'
-import Header from '@components/Header'
-import Card from '@components/Card'
-import Button from '@components/Button'
-import DropDownButton from '@components/DropDownButton'
-import Slider from '@components/Slider'
+import Header from './components/Header'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
+import Homepage from './views/Homepage/Homepage';
+import Login from './views/Login/Login';
+import Register from './views/Register/Register';
+import { useAuth } from './hooks/useAuth';
+import { AuthProvider } from './contexts/AuthContext';
 
-export default function App(){
-   return (
-    <>
+export default function App() {
+  const { signed } = useAuth();
+
+  return( 
+    <BrowserRouter>
+      <AuthProvider>
       <Header />
-      <DropDownButton title="NONE" />
-      <Slider />
-      <DropDownButton title="NONE" />
-      <Card 
-        title="Deus Ex: Human Revolution"
-        subTitle="Director's Cut"
-        imgUrl='https://cdn.cloudflare.steamstatic.com/steam/apps/238010/capsule_sm_120.jpg?t=1619788192'
-        alt='Sample Image'
-        color='bg-red-600'
-        price={35}
-        dealPrice={15}
-        isLogged={false}
-      />
-      <Button title="LOAD MORE" />
-    </>
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/login" element={!signed ? <Login /> : <Navigate to="/" />} />
+        <Route path="/register" element={!signed ? <Register /> : <Navigate to="/" />} />
+      </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }

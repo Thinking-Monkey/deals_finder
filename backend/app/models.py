@@ -8,7 +8,16 @@ class DFUserManager(BaseUserManager):
     # Il primo utente registrante passerà di qui ma con is_staff=True e is_superuser=True
     # quindi diventerà admin del sito, gli altri utenti passeranno di qui con
     # **extra_fields vuoti e diventeranno utenti normali
-    def create_user(self, username, password=None, **extra_fields):
+    def create_user(self, username, password=None):
+        if not username:
+            raise ValueError('Username is required')
+        
+        user = self.model(username=username)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+    
+    def create_superuser(self, username, password=None, **extra_fields):
         if not username:
             raise ValueError('Username is required')
         

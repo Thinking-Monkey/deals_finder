@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 export default function Card(props: {   title: string,
-                                        subTitle: string,
                                         price: number,
                                         dealPrice: number,
                                         color: string, 
@@ -12,8 +11,8 @@ export default function Card(props: {   title: string,
     
     const [barCss, setBarCss] = useState<string>("")  
 
-    const [cardButtonCss, setCardButtonCss] = useState<string>(`rounded-lg
-                        bg-[#FFD504]
+    const [cardButtonCss, setCardButtonCss] = useState<string>(`${props.color}
+                        rounded-lg
                         font-black
                         text-black
                         text-[2.5em]
@@ -40,25 +39,22 @@ export default function Card(props: {   title: string,
     }
 
     return (
-        <div className="card flex flex-col w-80 shadow-sm border-1 rounded-t-lg">
+        <div className="card overflow-hidden flex flex-col w-80 shadow-sm border-1 rounded-t-lg">
             <figure>
                 <img
                 src={props.imgUrl}
                 alt={props.alt} 
-                className='h-full w-full'/>
+                className='h-2/6 w-full'/>
             </figure>
             <hr className={barCss} />
-            <div className="card-body items-center bg-white/30">
+            <div className="card-body h-4/6 items-center bg-white/50">
                 <h2 className=" card-title font-black text-xl
                                 text-center text-white
-                                ">{ props.title }</h2>
-                <h3 className=" text-2xl font-thin
-                                font-regular text-center text-white  
-                                pb-4 sm:pb-6">{ props.subTitle }</h3>                
+                                ">{ props.title }</h2>             
                 <button type="button" className={cardButtonCss}>{locale(props.dealPrice)}</button>
                 <div className="card-actions justify-end">
                    <p className="font-thin text-s sm:text-base md:text-lg text-center text-white pt-2 leading-relaxed">
-                     Instead of <span className="text-[#d5ff04]">{locale(props.price)}</span></p>
+                     Instead of <span className="text-[#f5600b]">{locale(props.price)}</span></p>
                 </div>
             </div>
         </div>

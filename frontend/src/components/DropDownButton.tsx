@@ -1,7 +1,7 @@
 export default function DropDownButton({title}: {title: string}){
    return (
       <>
-         <div className="dropdown dropdown-end">
+         <div className="dropdown dropdown-start">
          <div tabIndex={0} role="button" className="  responsive
                                                       opacity-85
                                                       rounded-xl
