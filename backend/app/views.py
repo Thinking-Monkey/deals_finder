@@ -1,15 +1,16 @@
+from django.forms import ValidationError
+from django.http import JsonResponse
 from rest_framework import generics, status
-from collections import defaultdict
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from django.contrib.auth.models import User
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
-import random
+from django.db.models import F, Window
+from django.db.models.functions import RowNumber
 
 from .models import DFUser, Store, Deal
 from .serializers import (
@@ -18,14 +19,14 @@ from .serializers import (
 )
 
 class RegisterView(generics.CreateAPIView):
-    queryset = DFUser.objects.all()
+    users = DFUser.objects.all()
     serializer_class = DFUserSerializer
     permission_classes = [AllowAny]
     
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        if(queryset := DFUser.objects.all()).count() == 0:
+        if(users := DFUser.objects.all()).count() == 0:
             # Se non ci sono utenti, il primo ad iscriversi diventa admin
             user = serializer.save(is_superuser=True)
         else:
@@ -40,7 +41,6 @@ class RegisterView(generics.CreateAPIView):
             'access': str(refresh.access_token),
         }, status=status.HTTP_201_CREATED)
 
-
 # View per il login che restituisce, nel caso l'utente esista e la password sia corretta, un token JWT che
 # vale un'ora e un refresh token che vale 1 giorno, l'API accetta solo richieste POST con username e password
 # e non richiede autenticazione per essere chiamata
@@ -48,8 +48,12 @@ class RegisterView(generics.CreateAPIView):
 @permission_classes([AllowAny])
 def login_view(request):
     serializer = LoginSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    
+    try:
+        serializer.is_valid(raise_exception=True)
+    except Exception as e:
+        raise e('Credentials are not valid.')
+
+        
     user = serializer.validated_data['user']
     refresh = RefreshToken.for_user(user)
     
@@ -60,7 +64,7 @@ def login_view(request):
     })
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def logout_view(request):
     try:
         refresh_token = request.data["refresh"]
@@ -75,7 +79,7 @@ def logout_view(request):
 def delete_account_view(request):
     user = request.user
     if(user.is_superuser is True):
-        raise PermissionError({'error': "You can't remove admin account."})
+        return JsonResponse({'error': "You can't remove admin account."}, status=400)
     else:
         user.delete()
         return Response({'message': 'Account deleted successfully.'}, 
@@ -89,19 +93,17 @@ def deals_list(request):
     # API che restituisce deals di gog, steam e humble bundle in base all'autenticazione:
     # - Utenti non autenticati: i 3 migliori deals per negozio con informazioni limitate, solo per creare la card
     # - Utenti autenticati: tutti i deals con informazioni complete, con paginazione a 8 deal per pagina
-    deals = Deal.objects.all()
 
     if not request.user.is_authenticated:
-        # Utenti non autenticati: i migliori 3 deals per negozio, uno per negozio
+        deals= Deal.objects.annotate(
+            row_number=Window(
+            expression=RowNumber(),
+            partition_by=[F('store')],
+            order_by='created_at')
+            ).filter(row_number__lte=1)
+        
         if deals.exists():
-            deals_by_store = defaultdict(list)
-            for deal in deals:
-                deals_by_store[deal.store].append(deal)
-            top_3_per_store = []
-            for deal in deals_by_store():
-                top_3_per_store.extend(deal)
-
-            serializer = DealPublicSerializer(top_3_per_store, many=True)
+            serializer = DealPublicSerializer(deals, many=True)
         else:
             serializer = DealPublicSerializer([], many=True)
         
@@ -111,6 +113,7 @@ def deals_list(request):
             'deals': serializer.data
         })
     else:
+        deals = Deal.objects.all()
         # Utenti autenticati: tutti i deals con paginazione
         page = request.GET.get('page', 1)
         page_size = 8
@@ -137,35 +140,38 @@ def deals_list(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def deal_detail(request, deal_id):
+def deal_detail(request):
     """
     Dettagli di un singolo deal
     """
+    deal_id = request.GET.get('deal_id')
+    if not deal_id:
+        return JsonResponse({'error': 'deal_id parameter required'}, status=400)
+
     deal = get_object_or_404(Deal, deal_id=deal_id)
     
-    if not request.user.is_authenticated:
-        serializer = DealPublicSerializer(deal)
-        return Response({
-            'authenticated': False,
-            'deal': serializer.data
-        })
-    else:
-        serializer = DealSerializer(deal)
-        return Response({
-            'authenticated': True,
-            'deal': serializer.data
-        })
+    serializer = DealSerializer(deal)
+    return Response({
+        'deal': serializer.data
+    })
+        
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def user_profile(request):
+@permission_classes([AllowAny])
+def admin_exist(request):
     """
-    Profilo dell'utente autenticato
+    Verifica che non ci siano profili registrati
     """
-    serializer = DFUserSerializer(request.user)
-    return Response(serializer.data)
-
-
+    users = DFUser.objects.all()
+    if not users:
+        return Response({
+            'adminExist': False
+        })
+    else:
+        return Response({
+            'adminExist': True
+        })
+    
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def trigger_fetch_deals_async(request):

@@ -1,0 +1,23 @@
+meta {
+  name: Deal Details
+  type: http
+  seq: 8
+}
+
+get {
+  url: http://localhost:8000/api/dealDetail?deal_id=%2BRnjDN%2BLhLwgmyLmlfR4q2FianwBD3qElxdn5l3ExUs%3D
+  body: none
+  auth: inherit
+}
+
+params:query {
+  deal_id: %2BRnjDN%2BLhLwgmyLmlfR4q2FianwBD3qElxdn5l3ExUs%3D
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3OTg1NDQzLCJpYXQiOjE3NTc5Njc0NDMsImp0aSI6IjE1YzhlMTM0ZGQzNDRmYWViYmZjNjRlMWYwNzIzNzc3IiwidXNlcl9pZCI6IjEifQ.oqSe2Y_niiRNWvXpT5v1CUwDuGERpWtbAI6Zxzp0PaU
+}
+
+settings {
+  encodeUrl: true
+}

@@ -1,0 +1,13 @@
+services:
+
+  db:
+    image: docker.io/library/postgres
+    restart: always
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    env_file: ".env.docker"
+    ports:
+      - "5432:5432"
+    expose:
+      - "5432/tcp"

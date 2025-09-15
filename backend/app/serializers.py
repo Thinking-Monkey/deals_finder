@@ -46,12 +46,12 @@ class LoginSerializer(serializers.Serializer):
         if username and password:
             user = authenticate(username=username, password=password)
             if not user:
-                raise serializers.ValidationError('Credenziali non valide.')
+                raise serializers.ValidationError('Credentials are not valid.')
             if not user.is_active:
-                raise serializers.ValidationError('Account disattivato.')
+                raise serializers.ValidationError('Account deactivated.')
             attrs['user'] = user
         else:
-            raise serializers.ValidationError('Username e password sono richiesti.')
+            raise serializers.ValidationError('Username e password are require.')
         
         return attrs
 
