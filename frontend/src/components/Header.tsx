@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import type { AuthContextData } from '../contexts/AuthContext'
 import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router';
 
 export default function Header() {
   const { signed, user, signOut }: AuthContextData = useAuth();
+  const navigate = useNavigate();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   
@@ -11,7 +13,7 @@ export default function Header() {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const handleDropdownItemClick = (action) => {
+  const handleDropdownItemClick = (action: string) => {
     setIsDropdownOpen(false);
     if (action === 'logout') {
       signOut();
@@ -22,7 +24,7 @@ export default function Header() {
     <header className="flex justify-between items-center p-4 lg:px-6 bg-white/10 backdrop-blur-xl border-b border-white/10 sticky top-0 z-50 min-h-[70px]">
       {/* Logo Section */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-yellow-400/30">
+        <div onClick={() => navigate("/")} className=" cursor-pointer w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-yellow-400/30">
         </div>
         <div className="text-white text-xl lg:text-2xl font-bold drop-shadow-lg">
           Game Deals
@@ -61,7 +63,7 @@ export default function Header() {
               {isDropdownOpen && (
                 <div className="absolute top-full right-0 mt-2 bg-white/95 backdrop-blur-xl rounded-xl p-2 min-w-[180px] shadow-xl border border-white/20 z-50">
                   <div 
-                    className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-purple-500/10 hover:text-purple-600 rounded-lg "
+                    className="flex items-center gap-2 px-3 py-2 text-gray-700 rounded-lg "
                     onClick={() => handleDropdownItemClick('profile')}
                   >
                          {/* Overlay per chiudere dropdown su mobile */} <span>👤</span>

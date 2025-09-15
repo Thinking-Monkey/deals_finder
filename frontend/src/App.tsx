@@ -5,6 +5,7 @@ import Login from './views/Login/Login';
 import Register from './views/Register/Register';
 import { useAuth } from './hooks/useAuth';
 import { AuthProvider } from './contexts/AuthContext';
+import DetailPage from './views/DetailPage/DetailPage';
 
 export default function App() {
   const { signed } = useAuth();
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/" element={<Homepage />} />
         <Route path="/login" element={!signed ? <Login /> : <Navigate to="/" />} />
         <Route path="/register" element={!signed ? <Register /> : <Navigate to="/" />} />
+        <Route path="/deal/:deal_id" element={<DetailPage />} />
       </Routes>
       </AuthProvider>
     </BrowserRouter>

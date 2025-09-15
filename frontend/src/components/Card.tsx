@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router'
 export default function Card(props: {   title: string,
                                         price: number,
                                         dealPrice: number,
+                                        deal_id: string,
                                         color: string, 
                                         imgUrl: string, 
                                         alt: string,
@@ -9,7 +11,8 @@ export default function Card(props: {   title: string,
 
 
     
-    const [barCss, setBarCss] = useState<string>("")  
+    const [barCss, setBarCss] = useState<string>("")
+    const navigate = useNavigate()
 
     const [cardButtonCss, setCardButtonCss] = useState<string>(`${props.color}
                         rounded-lg
@@ -19,20 +22,19 @@ export default function Card(props: {   title: string,
                         px-20
                         py-3
                         font-(family-name: Galano Grotesque Alt)`)
-    
+              
     useEffect(() => {
         if(props.isLogged) {
             setCardButtonCss((prev) => prev.concat('hover:bg-black active:scale-95 transition-transform transform'));
         } else {
             setCardButtonCss((prev) => prev.concat('disabled'));
         }
-        setBarCss(`h-5 ${props.color} border-0`);
-        
-    }, [props.isLogged, props.color])
-    
-    const openDetail = (id: string) => {
 
-    }
+        setBarCss(`h-5 ${props.color} border-0`);
+        }, [props.isLogged]
+    )
+
+    const url = props.deal_id
 
     const locale = (value: number): string => {
         return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
@@ -44,14 +46,17 @@ export default function Card(props: {   title: string,
                 <img
                 src={props.imgUrl}
                 alt={props.alt} 
-                className='h-2/6 w-full'/>
+                className='flex-1 h-35 w-full object-fill'/>
             </figure>
             <hr className={barCss} />
             <div className="card-body h-4/6 items-center bg-white/50">
                 <h2 className=" card-title font-black text-xl
                                 text-center text-white
                                 ">{ props.title }</h2>             
-                <button type="button" className={cardButtonCss}>{locale(props.dealPrice)}</button>
+                {props.isLogged ? 
+                    <button type="button" onClick={() => navigate(`/deal/${url}`)} className={cardButtonCss}>{locale(props.dealPrice)}</button> :
+                    <button type="button" className={cardButtonCss}>{locale(props.dealPrice)}</button> }
+                    
                 <div className="card-actions justify-end">
                    <p className="font-thin text-s sm:text-base md:text-lg text-center text-white pt-2 leading-relaxed">
                      Instead of <span className="text-[#f5600b]">{locale(props.price)}</span></p>

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import Card from '../../components/Card'
 import Button from '../../components/Button'
 import DropDownButton from '../../components/DropDownButton'
-import Slider from '../../components/Slider'
 import { useAuth } from '../../hooks/useAuth';
 import RegisterLogin from '../../components/RegisterLogin';
 import http from '../../config/axios.config'
@@ -20,34 +19,25 @@ interface Deal {
 export default function Homepage(){
   
   const { signed, token } = useAuth();
-  const [config, setConfig] = useState({})
   const [dealList, setDealList] = useState(Array<Deal>);
   
   useEffect(() => {
-    if(signed){
-      setConfig({
-        header: {
-          'Authorization': 'Bearer' + token
-        }
-      })
-      console.log('sono passato di qui')
-      console.log(token)
-    } else {
-      setConfig({})
-    }
-
-    async function cardsBuilder(config: object): Promise<void>{
+    async function cardsBuilder(): Promise<void> {
       try {
-        const response = await http.get('/deals', config);
+        const requestConfig = signed 
+          ? { headers: { 'Authorization': `Bearer ${token}` } }
+          : {};
+        
+        const response = await http.get('/deals', requestConfig);
         setDealList(response.data.deals);
-      } catch(error){
+      } catch(error) {
         setDealList([])
         console.error('Deals loading error:', error);
       }
     }
-    cardsBuilder(config);
+    cardsBuilder();
 
-  }, [signed])
+    }, [signed])
 
   const colorSelector = (store_name: string): string => {
     switch(store_name){
@@ -66,23 +56,25 @@ export default function Homepage(){
     <>
       <div className='flex-initial'>
         { signed ? <div className='flex gap-20 items-center-safe justify-center py-5'>
-          <DropDownButton title="NONE" />
-          <Slider />
-          <DropDownButton title="NONE" />
+          <DropDownButton title="Store" />
+          <DropDownButton title="Price" />
+          <DropDownButton title="Sort" />
         </div> : ""} 
         <ul className=' p-1 flex flex-wrap items-center justify-center
                         content-center' >
           { (dealList) ? dealList.map((deal: Deal)=> {
               return <li className='  flex-shrink-0 m-6 realative
-                                      overflow-hidden ' key={deal.title}>< Card 
-                title={deal.title}
-                imgUrl={deal.thumb}
-                alt="Sample Image"
-                color={colorSelector(deal.store_name)}
-                price={Number(deal.normal_price)}
-                dealPrice={Number(deal.sale_price)}
-                isLogged={signed}
-                /></li>
+                                      overflow-hidden ' key={deal.title}>
+                      < Card 
+                        title={deal.title}
+                        imgUrl={deal.thumb}
+                        alt="Sample Image"
+                        color={colorSelector(deal.store_name)}
+                        price={Number(deal.normal_price)}
+                        dealPrice={Number(deal.sale_price)}
+                        deal_id={deal.deal_id}
+                        isLogged={signed}
+                      /></li>
               }
             ) : "There isn´t any deal"
           }
