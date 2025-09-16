@@ -43,16 +43,18 @@ class LoginSerializer(serializers.Serializer):
         username = attrs.get('username')
         password = attrs.get('password')
         
-        if username and password:
-            user = authenticate(username=username, password=password)
-            if not user:
-                raise serializers.ValidationError('Credentials are not valid.')
-            if not user.is_active:
-                raise serializers.ValidationError('Account deactivated.')
-            attrs['user'] = user
-        else:
-            raise serializers.ValidationError('Username e password are require.')
+        if not username:
+            raise serializers.ValidationError({'username': 'User field is required.'})
         
+        if not password:
+            raise serializers.ValidationError({'password': 'Password field is required.'})
+        
+        user = authenticate(username=username, password=password)
+            
+        if user is None:
+            raise serializers.ValidationError('Credentials are not valid.')
+
+        attrs['user'] = user
         return attrs
 
 class StoreSerializer(serializers.ModelSerializer):

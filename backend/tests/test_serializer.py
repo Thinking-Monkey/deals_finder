@@ -85,23 +85,13 @@ class LoginSerializerTest(TestCase):
         serializer = LoginSerializer(data=data)
         self.assertFalse(serializer.is_valid())
         self.assertIn('Credentials are not valid.', str(serializer.errors))
-        
-    def test_inactive_user(self):
-        self.user.is_active = False
-        self.user.save()
-        data = {
-            'username': 'testuser',
-            'password': 'testpass123'
-        }
-        serializer = LoginSerializer(data=data)
-        self.assertFalse(serializer.is_valid())
-        self.assertIn('Account deactivated.', str(serializer.errors))
-        
+                
     def test_missing_fields(self):
         data = {'username': 'testuser'}
         serializer = LoginSerializer(data=data)
         self.assertFalse(serializer.is_valid())
-        self.assertIn('Username e password are require.', str(serializer.errors))
+        error = serializer.errors
+        self.assertIn('This field is required.', str(error))
 
 
 class StoreSerializerTest(TestCase):

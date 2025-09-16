@@ -50,24 +50,35 @@ export default function Homepage(){
     }
   }, [signed])
 
-  const loadDeals = async (page: number = 1, useFilters: boolean|undefined): Promise<void> => {
+  const loadDeals = async (
+    page: number = 1, 
+    useFilters: boolean | undefined,
+    storeFilter?: string,
+    priceFilter?: number | null,
+    orderingFilter?: string
+  ): Promise<void> => {
     try {
       const requestConfig = signed 
         ? { headers: { 'Authorization': `Bearer ${token}` } }
         : {};
       
       let endpoint = '/deals';
-      let params: string[] = [];
+      const params: string[] = [];
 
       if (useFilters && signed) {
         endpoint = '/dealsFiltered';
         
-        if (selectedStore) params.push(`store_id=${selectedStore}`);
-        if (selectedMinPrice !== null) params.push(`min_price=${selectedMinPrice}`);
-        if (selectedOrdering) params.push(`ordering=${selectedOrdering}`);
+        // Usa i parametri passati o i valori attuali dello state
+        const currentStore = storeFilter !== undefined ? storeFilter : selectedStore;
+        const currentMinPrice = priceFilter !== undefined ? priceFilter : selectedMinPrice;
+        const currentOrdering = orderingFilter !== undefined ? orderingFilter : selectedOrdering;
+        
+        if (currentStore != "") params.push(`store=${currentStore}`);
+        if (currentMinPrice !== null) params.push(`min_price=${currentMinPrice}`);
+        if (currentOrdering != "") params.push(`ordering=${currentOrdering}`);
       }
       
-      console.log(`Dentro Deals : ${selectedStore}`)
+      console.log(`Dentro Deals : ${storeFilter !== undefined ? storeFilter : selectedStore}`)
       if (page > 1) params.push(`page=${page}`);
       
       if (params.length > 0) {
@@ -75,6 +86,7 @@ export default function Homepage(){
       }
       
       const response = await http.get(endpoint, requestConfig);
+      console.log(response)
       setDealList(response.data.deals);
       setHasNext(response.data.hasNext);
       setPageNum(page);
@@ -99,13 +111,13 @@ export default function Homepage(){
   }
 
   const handleLoadMore = () => {
-    const hasFilters = selectedStore || selectedMinPrice !== null || selectedOrdering;
+    const hasFilters = selectedStore != "" || selectedMinPrice !== null || selectedOrdering != "";
     loadDeals(pageNum + 1, hasFilters);
   }
 
   const handleLoadPrevious = () => {
     if (pageNum > 1) {
-      const hasFilters = selectedStore || selectedMinPrice !== null || selectedOrdering;
+      const hasFilters = selectedStore != "" || selectedMinPrice !== null || selectedOrdering != "";
       loadDeals(pageNum - 1, hasFilters);
     }
   }
@@ -113,25 +125,22 @@ export default function Homepage(){
   const handleStoreFilter = (storeId: string) => {
     setSelectedStore(storeId);
     setPageNum(1);
-    setTimeout(() => {
-      loadDeals(1, true);
-    }, 10);
+    // Passa direttamente il nuovo valore invece di affidarti allo state
+    loadDeals(1, true, storeId, selectedMinPrice, selectedOrdering);
   }
 
   const handlePriceFilter = (minPrice: number) => {
     setSelectedMinPrice(minPrice);
     setPageNum(1);
-    setTimeout(() => {
-      loadDeals(1, true);
-    }, 0);
+    // Passa direttamente il nuovo valore invece di affidarti allo state
+    loadDeals(1, true, selectedStore, minPrice, selectedOrdering);
   }
 
   const handleOrderingFilter = (ordering: string) => {
     setSelectedOrdering(ordering);
     setPageNum(1);
-    setTimeout(() => {
-      loadDeals(1, true);
-    }, 0);
+    // Passa direttamente il nuovo valore invece di affidarti allo state
+    loadDeals(1, true, selectedStore, selectedMinPrice, ordering);
   }
 
   const clearFilters = () => {

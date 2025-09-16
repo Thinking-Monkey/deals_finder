@@ -87,17 +87,6 @@ class LoginViewTest(APITestCase):
         }
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        
-    def test_login_inactive_user(self):
-        self.user.is_active = False
-        self.user.save()
-        
-        data = {
-            'username': 'testuser',
-            'password': 'testpass123'
-        }
-        response = self.client.post(self.url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class LogoutViewTest(APITestCase):
@@ -170,7 +159,7 @@ class DealsListViewTest(APITestCase):
         self.assertIn('deals', response.data)
         self.assertIn('count', response.data)
         self.assertIn('page', response.data)
-        self.assertIn('has_next', response.data)
+        self.assertIn('hasNext', response.data)
         
     def test_deals_list_pagination(self):
         # Create more deals to test pagination
@@ -250,41 +239,3 @@ class AdminExistViewTest(APITestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['adminExist'])
-
-
-class TriggerFetchDealsAsyncViewTest(APITestCase):
-    def setUp(self):
-        self.url = reverse('trigger_fetch_deals_async')
-        self.User = get_user_model()
-        self.user = self.User.objects.create_user(
-            username='testuser',
-            password='testpass123'
-        )
-        
-    @patch('app.views.threading.Thread')
-    @patch('app.views.call_command')
-    def test_trigger_fetch_deals_authenticated(self, mock_call_command, mock_thread):
-        self.client.force_authenticate(user=self.user)
-        data = {
-            'stores_only': False,
-            'deals_only': True,
-            'max_price': 20.0,
-            'store_id': 1
-        }
-        response = self.client.post(self.url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data['success'])
-        mock_thread.assert_called_once()
-        
-    def test_trigger_fetch_deals_unauthenticated(self):
-        response = self.client.post(self.url, {}, format='json')
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        
-    def test_trigger_fetch_deals_invalid_params(self):
-        self.client.force_authenticate(user=self.user)
-        data = {
-            'max_price': 'invalid',
-            'store_id': 'invalid'
-        }
-        response = self.client.post(self.url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

@@ -58,8 +58,8 @@ export default function Card(props: {   title: string,
                     <button type="button" className={cardButtonCss}>{locale(props.dealPrice)}</button> }
                     
                 <div className="card-actions justify-end">
-                   <p className="font-thin text-s sm:text-base md:text-lg text-center text-white pt-2 leading-relaxed">
-                     Instead of <span className="text-[#f5600b]">{locale(props.price)}</span></p>
+                   <p className="font-thin text-s sm:text-base md:text-lg text-center text-black pt-2 leading-relaxed">
+                     Instead of <span className="font-bold">{locale(props.price)}</span></p>
                 </div>
             </div>
         </div>

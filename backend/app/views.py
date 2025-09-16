@@ -1,4 +1,3 @@
-from django.forms import ValidationError
 from django.http import JsonResponse
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -19,14 +18,13 @@ from .serializers import (
 )
 
 class RegisterView(generics.CreateAPIView):
-    users = DFUser.objects.all()
     serializer_class = DFUserSerializer
     permission_classes = [AllowAny]
     
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        if(users := DFUser.objects.all()).count() == 0:
+        if(DFUser.objects.all()).count() == 0:
             # Se non ci sono utenti, il primo ad iscriversi diventa admin
             user = serializer.save(is_superuser=True)
         else:
@@ -51,9 +49,8 @@ def login_view(request):
     try:
         serializer.is_valid(raise_exception=True)
     except Exception as e:
-        raise e('Credentials are not valid.')
+        return JsonResponse({'error': "Credentials are not valid."}, status=400)
 
-        
     user = serializer.validated_data['user']
     refresh = RefreshToken.for_user(user)
     
@@ -145,10 +142,10 @@ def deals_list(request):
 def deals_list_filtered(request):
 
     deals = Deal.objects.all()
-    
+
     store = request.GET.get('store')
     if store:
-        deals = deals.filter(store__store=store)
+        deals = deals.filter(store__store_name=store)
     
     min_price = request.GET.get('min_price')
     if min_price:
@@ -193,7 +190,7 @@ def deals_list_filtered(request):
             'has_previous': page > 1,
             'deals': serializer.data,
             'filters_applied': {
-                'store': store_id,
+                'store': store,
                 'min_price': min_price,
                 'ordering': ordering
             }
@@ -250,67 +247,3 @@ def admin_exist(request):
         return Response({
             'adminExist': True
         })
-    
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def trigger_fetch_deals_async(request):
-    """
-    Endpoint per triggere il comando fetch_deals in modalità asincrona
-    Utile per operazioni lunghe che non bloccano il frontend
-    """
-    import threading
-    from django.core.management import call_command
-    from django.core.management.base import CommandError
-    import logging
-    
-    # Parametri dal request
-    stores_only = request.data.get('stores_only', False)
-    deals_only = request.data.get('deals_only', False)
-    max_price = request.data.get('max_price', 15)
-    store_id = request.data.get('store_id', 1)
-    
-    # Validazione parametri
-    try:
-        max_price = float(max_price)
-        store_id = int(store_id)
-    except (ValueError, TypeError):
-        return Response({
-            'success': False,
-            'error': 'Parametri max_price o store_id non validi'
-        }, status=status.HTTP_400_BAD_REQUEST)
-    
-    def run_fetch_command():
-        """Funzione per eseguire il comando in background"""
-        try:
-            command_args = [
-                f'--max-price={max_price}',
-                f'--store-id={store_id}'
-            ]
-            
-            if stores_only:
-                command_args.append('--stores-only')
-            elif deals_only:
-                command_args.append('--deals-only')
-            
-            call_command('fetch_deals', *command_args)
-            logging.info(f'Fetch deals command completed successfully for user {request.user.username}')
-            
-        except Exception as e:
-            logging.error(f'Error in async fetch deals: {str(e)}')
-    
-    # Avvia il comando in un thread separato
-    thread = threading.Thread(target=run_fetch_command)
-    thread.daemon = True
-    thread.start()
-    
-    return Response({
-        'success': True,
-        'message': 'Comando fetch_deals avviato in background',
-        'note': 'Il comando è in esecuzione. Controlla i log per lo stato.',
-        'parameters': {
-            'stores_only': stores_only,
-            'deals_only': deals_only,
-            'max_price': max_price,
-            'store_id': store_id
-        }
-    })

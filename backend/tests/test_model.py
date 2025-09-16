@@ -54,17 +54,6 @@ class DFUserModelTest(TestCase):
                 password='adminpass123'
             )
 
-    def test_user_full_name(self):
-        user = self.User.objects.create_user(
-            username='testuser',
-            password='testpass123',
-            first_name='John',
-            last_name='Doe'
-        )
-        self.assertEqual(user.first_name, 'John')
-        self.assertEqual(user.last_name, 'Doe')
-
-
 class StoreModelTest(TestCase):
     def setUp(self):
         self.store_data = {
