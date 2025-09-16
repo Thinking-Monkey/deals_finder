@@ -33,4 +33,4 @@ poetry.lock
 .pytest_cache
 
 # API Collection
-.APICollection
+APICollection
