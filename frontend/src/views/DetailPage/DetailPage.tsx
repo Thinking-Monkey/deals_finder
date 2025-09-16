@@ -18,8 +18,8 @@ interface DealDetail {
   last_change?: string;
   update_at?: string;
   deal_rating?: string;
-  steamAppID?: number;
-  steamRatingText?: string;
+  steam_app_id?: number;
+  steam_rating_text?: string;
   store?: number;
 }
 
@@ -71,7 +71,7 @@ export default function DealDetailPage() {
     if(deal != null )
         switch(store_name) {
         case "Steam":
-            urlStore = `https://store.steampowered.com/app/${deal.steamAppID}`
+            urlStore = `https://store.steampowered.com/app/${deal.steam_app_id}`
             return "bg-teal-500";
         case "GOG":
             console.log(processString(deal.title, '_'))
@@ -157,10 +157,10 @@ export default function DealDetailPage() {
                   </span>
                 </div>
               </div>
-                {deal.steamRatingText && (
+                {deal.steam_rating_text && (
                   <div>
                     <span className="text-white">Steam Score: </span>
-                    <span className="text-indigo-300">{deal.steamRatingText}</span>
+                    <span className="text-indigo-300">{deal.steam_rating_text}</span>
                   </div> )}
 
                 {deal.metacritic_score ?

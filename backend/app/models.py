@@ -73,6 +73,8 @@ class Deal(models.Model):
     sale_price = models.DecimalField(max_digits=10, decimal_places=2)
     normal_price = models.DecimalField(max_digits=10, decimal_places=2)
     deal_rating = models.DecimalField(max_digits=4, decimal_places=1, default=0)
+    steam_app_id = models.IntegerField(null=True, blank=True)
+    steam_rating_text = models.CharField(max_length=30, null=True, blank=True)
     metacritic_score = models.IntegerField(null=True, blank=True)
     release_date = models.DateTimeField(null=True, blank=True)
     last_change = models.DateTimeField(null=True, blank=True)

@@ -135,6 +135,8 @@ class Command(BaseCommand):
                         'title': deal_data.get('title', ''),
                         'store': store_obj,
                         'store_name': store_obj.store_name,
+                        'steam_app_id': deal_data.get('steamAppID'),
+                        'steam_rating_text': deal_data.get('steamRatingText'),
                         'sale_price': Decimal(str(deal_data.get('salePrice', 0))),
                         'normal_price': Decimal(str(deal_data.get('normalPrice', 0))),
                         'deal_rating': Decimal(str(deal_data.get('dealRating', 0))),

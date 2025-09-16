@@ -114,7 +114,10 @@ def deals_list(request):
         })
     else:
         deals = Deal.objects.all()
+
         # Utenti autenticati: tutti i deals con paginazione
+        # Ogni pagina conterrà 8 elementi per rimanere coerente con
+        # la richiesta della parte FE
         page = request.GET.get('page', 1)
         page_size = 8
         
@@ -131,12 +134,73 @@ def deals_list(request):
                 'count': deals.count(),
                 'page': page,
                 'page_size': page_size,
-                'has_next': end < deals.count(),
+                'hasNext': end < deals.count(),
                 'deals': serializer.data
             })
         except ValueError:
             return Response({'error': 'Parametro page non valido'}, status=400)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def deals_list_filtered(request):
+
+    deals = Deal.objects.all()
+    
+    store = request.GET.get('store')
+    if store:
+        deals = deals.filter(store__store=store)
+    
+    min_price = request.GET.get('min_price')
+    if min_price:
+        deals = deals.filter(sale_price__gte=float(min_price))
+    
+    ordering = request.GET.get('ordering', '-deal_rating')
+    allowed_orderings = [
+        'deal_rating', '-deal_rating',
+        'sale_price', '-sale_price',
+        'normal_price', '-normal_price',
+        'title', '-title',
+        'created_at', '-created_at',
+        'metacritic_score', '-metacritic_score'
+    ]
+    
+    if ordering in allowed_orderings:
+        deals = deals.order_by(ordering)
+    else:
+        deals = deals.order_by('-deal_rating')
+    
+    # Pagination
+    page = request.GET.get('page', 1)
+    page_size = request.GET.get('page_size', 8)
+    
+    try:
+        page = int(page)
+        page_size = min(int(page_size), 50)  # Max 50 items per page
+        
+        start = (page - 1) * page_size
+        end = start + page_size
+        
+        total_count = deals.count()
+        paginated_deals = deals[start:end]
+        serializer = DealSerializer(paginated_deals, many=True)
+        
+        return Response({
+            'count': total_count,
+            'page': page,
+            'page_size': page_size,
+            'total_pages': (total_count + page_size - 1) // page_size,
+            'has_next': end < total_count,
+            'has_previous': page > 1,
+            'deals': serializer.data,
+            'filters_applied': {
+                'store': store_id,
+                'min_price': min_price,
+                'ordering': ordering
+            }
+        })
+        
+    except ValueError:
+        return Response({'error': 'Invalid page or page_size parameter'}, status=400)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -154,7 +218,22 @@ def deal_detail(request):
     return Response({
         'deal': serializer.data
     })
-        
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def filters_data(request):
+    from django.db.models import Min, Max
+    
+    stores = Deal.objects.values('store_name').values_list('store_name', flat=True )
+    stores = set(stores)
+    list(dict.fromkeys(stores))
+    sale_prices = Deal.objects.values('sale_price').values_list('sale_price', flat=True )
+    sale_prices = sorted(set(sale_prices))
+
+    return Response({
+        'stores': list(stores),
+        'prices': list(sale_prices),
+        })
 
 @api_view(['GET'])
 @permission_classes([AllowAny])

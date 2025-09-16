@@ -35,38 +35,27 @@ export default function Header() {
       <div className="flex items-center gap-3">
         {user ? (
           <>
-            {/* User Info - nascosto su mobile */}
-            <div className="hidden md:flex flex-col items-end text-white">
-              <div className="font-semibold text-sm drop-shadow-md">
-                {user.username}
-              </div>
-            </div>
-
-            {/* Avatar con Dropdown */}
+            {/* Avatar con Dropdown per fare il logout*/}
             <div className="relative">
               <button
                 onClick={handleAvatarClick}
                 className="w-11 h-11 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-semibold border-2 border-white/20 hover:border-white/40 hover:scale-105 transition-all duration-300 shadow-lg relative overflow-hidden"
               >
                 {<img 
-                    src="../assets/logged.jpg" 
+                    src="/src/assets/logged.jpg" 
                     alt={user.username}
                     className="w-full h-full object-cover rounded-full"
                   />
                 }
-                
-                {/* Status Indicator */}
-                <div className="absolute bottom-0.5 right-0.5 w-3 h-3 bg-green-400 border-2 border-white rounded-full"></div>
-              </button>
+                </button>
 
-              {/* Dropdown Menu */}
               {isDropdownOpen && (
                 <div className="absolute top-full right-0 mt-2 bg-white/95 backdrop-blur-xl rounded-xl p-2 min-w-[180px] shadow-xl border border-white/20 z-50">
                   <div 
                     className="flex items-center gap-2 px-3 py-2 text-gray-700 rounded-lg "
                     onClick={() => handleDropdownItemClick('profile')}
                   >
-                         {/* Overlay per chiudere dropdown su mobile */} <span>👤</span>
+                  <span>👤</span>
                     {user.username}
                   </div>
                   <div className="h-px bg-gray-200 my-2"></div>
