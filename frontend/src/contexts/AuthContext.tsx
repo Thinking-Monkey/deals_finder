@@ -8,14 +8,14 @@ interface User {
 }
 
 interface Credentials {
-    username: string,
-    password: string
+    username: string | undefined,
+    password: string | undefined
 }
 
 interface RegCredentials {
-    username: string,
-    password: string,
-    passwordControl: string
+    username: string | undefined,
+    password: string | undefined,
+    passwordControl: string | undefined
 }
 export interface AuthContextData {
   signed: boolean;
@@ -32,11 +32,11 @@ export interface AuthContextData {
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser, removeUser] = useLocalStorage<User | null>('user', null);
-  const [signed, setSigned, removeSigned] = useLocalStorage<boolean>('signed', false);
+  const [user, setUser] = useLocalStorage<User | null>('user', null);
+  const [signed, setSigned] = useLocalStorage<boolean>('signed', false);
   const [token, setToken, removeToken] = useLocalStorage<string>('bearer', '');
   const [refreshToken, setRToken, removeRToken] = useLocalStorage<string>('rtk', '');
-  const [isFirstRegistration, setFR, removeFR] = useLocalStorage<boolean>('ifr', true)
+  const [isFirstRegistration, setFR, removeFR] = useLocalStorage<boolean>('ifr', false)
   
   const adminExist = async () => {
   const res = await http.get('/admin-exist');
@@ -59,10 +59,11 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   async function signOut(): Promise<void> {
+    // TODO
     const logout = {
       refresh: refreshToken
     }
-    // await http.post("/signout", logout) //attualmente disabilitata la logout da server
+    await http.post("/signout", logout) //attualmente disabilitata la logout da server
     setUser(null)
     setSigned(false)
     removeToken()
@@ -83,6 +84,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   async function renewToken(): Promise<void> {
+    // TODO
     // const res = await http.post("/login", credentials);
   }
 

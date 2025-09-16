@@ -14,9 +14,10 @@ logs
 **/*.backup.*
 **/*.back.*
 
-# Visual Studio Code
+# Visual Studio Code && Idea
 .vscode/*
 .history/
+.idea
 
 # pyenv
 .python-version
@@ -30,3 +31,6 @@ poetry.lock
 
 # pytest
 .pytest_cache
+
+# API Collection
+.APICollection

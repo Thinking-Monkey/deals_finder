@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router';
 
 export default function Header() {
-  const { signed, user, signOut }: AuthContextData = useAuth();
+  const { user, signOut }: AuthContextData = useAuth();
   const navigate = useNavigate();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -22,7 +22,6 @@ export default function Header() {
  
   return (
     <header className="flex justify-between items-center p-4 lg:px-6 bg-white/10 backdrop-blur-xl border-b border-white/10 sticky top-0 z-50 min-h-[70px]">
-      {/* Logo Section */}
       <div className="flex items-center gap-3">
         <div onClick={() => navigate("/")} className=" cursor-pointer w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-yellow-400/30">
         </div>
@@ -30,12 +29,9 @@ export default function Header() {
           Game Deals
         </div>
       </div>
-
-      {/* Avatar/Login Section */}
       <div className="flex items-center gap-3">
         {user ? (
           <>
-            {/* Avatar con Dropdown per fare il logout*/}
             <div className="relative">
               <button
                 onClick={handleAvatarClick}

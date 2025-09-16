@@ -29,7 +29,7 @@ export default function DealDetailPage() {
   const [deal, setDeal] = useState<DealDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  let urlStore:string = ""
+  let urlStore:string = "";
 
   useEffect(() => {
     async function fetchDealDetail(): Promise<void> {
@@ -48,7 +48,7 @@ export default function DealDetailPage() {
         const response = await http.get(`/dealDetail?deal_id=${doubleEncoded}`, requestConfig);
         setDeal(response.data.deal);
         setError(null);
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error fetching deal details:', error);
         setError('Failed to load deal details');
         setDeal(null);
@@ -109,9 +109,7 @@ export default function DealDetailPage() {
   }
 
   const formatData = (date: string): string =>{
-    const dateString = new Date(date); // Converti in millisecondi
-
-    // Formato italiano
+    const dateString = new Date(date);
     return dateString.toLocaleDateString('en-EN');
   }
 
@@ -124,10 +122,8 @@ export default function DealDetailPage() {
     <div className="min-h-screen bg-white/30 text-white p-6">
       <div className="max-w-4xl mx-auto">
 
-        {/* Main content */}
         <div className="bg-gray-800/50 rounded-lg overflow-hidden shadow-xl">
           <div className="md:flex">
-            {/* Image section */}
             <div className="md:w-1/2">
               <img
                 src={deal.thumb}
@@ -136,7 +132,6 @@ export default function DealDetailPage() {
               />
             </div>
 
-            {/* Details section */}
             <div className="md:w-1/2 p-8">
               <h1 className="text-3xl font-bold mb-4">{deal.title}</h1>
               
@@ -146,7 +141,6 @@ export default function DealDetailPage() {
                 </span>
               </div>
 
-              {/* Price section */}
               <div className="mb-6">
                 <div className="flex items-baseline gap-4">
                   <span className="text-4xl font-bold text-green-400">

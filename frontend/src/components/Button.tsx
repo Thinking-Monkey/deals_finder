@@ -1,4 +1,4 @@
-export default function Button({title, onClick}: {title: string, onClick: () => void}){
+export default function Button({title, onClick}: {title: React.ReactNode, onClick: () => void}){
    return (
       <button  type="button"
                onClick={onClick}

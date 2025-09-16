@@ -27,9 +27,9 @@ export default function Register(){
 
   const handleOnSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    const regCredentials = {  username: username.current.value, 
-                              password: password.current.value,
-                              passwordCheck: passwordCheck.current.value}
+    const regCredentials = {  username: username.current?.value, 
+                              password: password.current?.value,
+                              passwordControl: passwordCheck.current?.value}
     try{
       await registration(regCredentials)
       if(signed){

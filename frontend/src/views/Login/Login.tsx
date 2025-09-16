@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { useNavigate } from 'react-router';
 
@@ -7,14 +7,22 @@ export default function Login(){
   const password = useRef<HTMLInputElement>(null)
   const { signIn, signed } = useAuth();
   const navigate = useNavigate();
+  const documentModal = document.getElementById('my_modal_1') as HTMLDialogElement;
+  
   const handleErrorModal = () => {
-      document.getElementById('my_modal_1').showModal()
+    if(documentModal != null) {
+      documentModal.showModal()
+      }
   }
+  
   const handleOnSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    const credentials = {username: username.current.value, password: password.current.value}
+    const credentials = { username: username.current?.value, 
+                          password: password.current?.value}
+
     try{
       await signIn(credentials)
+
       if(signed){
         navigate("/")
       }
