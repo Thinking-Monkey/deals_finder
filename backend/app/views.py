@@ -10,6 +10,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
 from django.db.models import F, Window
 from django.db.models.functions import RowNumber
+from rest_framework.serializers import ValidationError
 
 from .models import DFUser, Store, Deal
 from .serializers import (
@@ -18,13 +19,22 @@ from .serializers import (
 )
 
 class RegisterView(generics.CreateAPIView):
+    users = DFUser.objects.all()
     serializer_class = DFUserSerializer
     permission_classes = [AllowAny]
     
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        if(DFUser.objects.all()).count() == 0:
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as e:
+            # Restituisce tutti gli errori di validazione
+            return JsonResponse({
+                'success': False,
+                'errors': serializer.errors
+            }, status=400)
+        
+        if(users := DFUser.objects.all()).count() == 0:
             # Se non ci sono utenti, il primo ad iscriversi diventa admin
             user = serializer.save(is_superuser=True)
         else:

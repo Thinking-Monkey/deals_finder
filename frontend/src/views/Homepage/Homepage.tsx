@@ -33,14 +33,14 @@ export default function Homepage(){
   const [selectedMinPrice, setSelectedMinPrice] = useState<number | null>(null)
   const [selectedOrdering, setSelectedOrdering] = useState<string>("")
 
-  const orderingOptions = [
-    'deal_rating', 
-    'sale_price',
-    'normal_price',
-    'title',
-    'created_at',
-    'metacritic_score'
-  ];
+const orderingOptions = [
+  { id: 'deal_rating', name: 'Deal Rating' },
+  { id: 'sale_price', name: 'Sale Price' },
+  { id: 'normal_price', name: 'Normal Price' },
+  { id: 'title', name: 'Title' },
+  { id: 'created_at', name: 'Created Date' },
+  { id: 'metacritic_score', name: 'Metacritic Score' }
+];
 
   useEffect(() => {
     loadDeals(1, false);

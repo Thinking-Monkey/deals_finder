@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createContext, useEffect } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import type { ReactNode } from 'react';
@@ -15,7 +16,7 @@ interface Credentials {
 interface RegCredentials {
     username: string | undefined,
     password: string | undefined,
-    passwordControl: string | undefined
+    passwordCheck: string | undefined
 }
 export interface AuthContextData {
   signed: boolean;
@@ -25,7 +26,7 @@ export interface AuthContextData {
   token: string;
   renewToken(): Promise<void>;
   isFirstRegistration: boolean;
-  registration({username, password, passwordControl}: RegCredentials): Promise<void>;
+  registration({username, password, passwordCheck}: RegCredentials): Promise<void>;
 }
 
 
@@ -36,7 +37,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [signed, setSigned] = useLocalStorage<boolean>('signed', false);
   const [token, setToken, removeToken] = useLocalStorage<string>('bearer', '');
   const [refreshToken, setRToken, removeRToken] = useLocalStorage<string>('rtk', '');
-  const [isFirstRegistration, setFR, removeFR] = useLocalStorage<boolean>('ifr', false)
+  const [isFirstRegistration, setFR, removeFR] = useLocalStorage<boolean>('ifr', true)
   
   const adminExist = async () => {
   const res = await http.get('/admin-exist');
@@ -47,15 +48,20 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     adminExist()
-  }, [isFirstRegistration])
+  }, [])
 
   async function signIn(credentials: Credentials): Promise<void> {
-    const res = await http.post("/signin", credentials);
-    setUser(res.data.user)
-    setSigned(true)
-    setToken(res.data.access)
-    setRToken(res.data.refresh)
-    setFR(true)
+    // eslint-disable-next-line no-useless-catch
+    try{
+      const res = await http.post("/signin", credentials);
+      setUser(res.data.user)
+      setSigned(true)
+      setToken(res.data.access)
+      setRToken(res.data.refresh)
+      setFR(true)
+    } catch(error: any) {
+      throw error;
+    } 
   }
 
   async function signOut(): Promise<void> {
@@ -72,14 +78,20 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   async function registration(regCredentials: RegCredentials): Promise<void> {
-    const res = await http.post("/signon", regCredentials);
-    if(res && isFirstRegistration){
-      setFR(false)
-      setUser(res.data.user)
-      setSigned(true)
-      setToken(res.data.access)
-      setRToken(res.data.refresh)
-      setFR(true)
+    // eslint-disable-next-line no-useless-catch
+    try{
+      const res = await http.post("/signon", regCredentials);
+      if(res){
+        setUser(res.data.user)
+        setSigned(true)
+        setToken(res.data.access)
+        setRToken(res.data.refresh)
+      }
+      if(isFirstRegistration){
+        setFR(false)
+      }
+    } catch(error: any) {
+      throw error;
     }
   }
 

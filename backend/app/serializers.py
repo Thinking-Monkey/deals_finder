@@ -21,7 +21,9 @@ class DFUserSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, attrs):
-        if attrs['password'] != attrs['passwordCheck']:
+        password = attrs.get('password')
+        password_check = attrs.get('passwordCheck')
+        if password != password_check: 
             raise serializers.ValidationError({"Passwords does not match."})
         attrs.pop('passwordCheck')  # Rimuove passwordCheck dai dati validati perché non serve più
         return attrs

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState} from 'react'
 import { useAuth }  from '../../hooks/useAuth'
 import { useNavigate } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -9,9 +9,17 @@ export default function Register(){
   const username = useRef<HTMLInputElement>(null)
   const password = useRef<HTMLInputElement>(null)
   const passwordCheck = useRef<HTMLInputElement>(null)
-  
+  const [errorMessage, setErrorMessage] = useState("")
+
   let cssFirstReg: string = "";
   const navigate = useNavigate();
+  const documentModal = document.getElementById('my_modal_1') as HTMLDialogElement;
+  
+  const handleErrorModal = () => {
+    if(documentModal != null) {
+      documentModal.showModal()
+      }
+  }
   
   if(isFirstRegistration){
     cssFirstReg = 'bg-yellow-500/50';
@@ -29,14 +37,32 @@ export default function Register(){
     event.preventDefault()
     const regCredentials = {  username: username.current?.value, 
                               password: password.current?.value,
-                              passwordControl: passwordCheck.current?.value}
+                              passwordCheck: passwordCheck.current?.value}
     try{
       await registration(regCredentials)
-      if(signed){
-        navigate("/")
+      navigate("/")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch(error: any) {
+      handleErrorModal()
+     if (error.response?.status === 400) {
+        const errors = error.response.data.errors;
+        
+        // Crea un messaggio di errore leggibile
+        let message = "";
+        if (errors.password) {
+          message = errors.password.concat(``);
+        } else if (errors.passwordCheck) {
+          message = "Passwords doesn't match";
+        } else if (errors.username) {
+          message = "Username already exist";
+        } else {
+          message = "Data not valid";
+        }
+        
+        setErrorMessage(message);
+      } else {
+        setErrorMessage("Errore di connessione");
       }
-    } catch(e) {
-      throw new ErrorEvent("Error during login: " + e);
     }
   }
 
@@ -67,7 +93,27 @@ export default function Register(){
           content-center
           justify-center
           '>Already have an account?&nbsp;<a className="link text-purple-600 hover:text-purple-300" onClick={() => navigate("/login")}>Login</a>&nbsp;here</h3>
-
+  
+      <dialog id="my_modal_1" className="modal">
+        <div className="  modal-box 
+                        bg-white/85 border 
+                        border-white/85
+                          text-black">
+          <h3 className="font-bold text-lg">Registration Error</h3>
+          <p className="py-4">{errorMessage}</p>
+          <div className="modal-action">
+            <form method="dialog">
+              <button onClick={() => setErrorMessage("")} className="btn x-4 py-2 lg:px-5 lg:py-2.5 
+                            bg-white/20 border 
+                            border-white/30 
+                            rounded-lg 
+                            text-purple-900 font-semibold text-sm lg:text-base 
+                            hover:bg-white/30 hover:-translate-y-0.5 transition-all duration-300 
+                            backdrop-blur-lg shadow-lg">Close</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
   </div>
   )
 }

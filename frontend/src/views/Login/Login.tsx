@@ -1,13 +1,14 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { useNavigate } from 'react-router';
 
 export default function Login(){
   const username = useRef<HTMLInputElement>(null)
   const password = useRef<HTMLInputElement>(null)
-  const { signIn, signed } = useAuth();
+  const { signIn } = useAuth();
   const navigate = useNavigate();
   const documentModal = document.getElementById('my_modal_1') as HTMLDialogElement;
+  const [errorMessage, setErrorMessage] = useState("")
   
   const handleErrorModal = () => {
     if(documentModal != null) {
@@ -21,14 +22,16 @@ export default function Login(){
                           password: password.current?.value}
 
     try{
-      await signIn(credentials)
-
-      if(signed){
-        navigate("/")
+      await signIn(credentials);
+      navigate("/");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch(error: any) {
+      if (error.response?.status === 400) {
+        setErrorMessage("Username or password not valid");
+      } else {
+        setErrorMessage("Connection Error");
       }
-    } catch(e) {
       handleErrorModal()
-      throw new ErrorEvent("Error during login: " + e);
     }
   }
 
@@ -78,12 +81,12 @@ export default function Login(){
                         bg-white/85 border 
                         border-white/85
                           text-black">
-          <h3 className="font-bold text-lg">Account Error</h3>
-          <p className="py-4">Username or password not valid</p>
+          <h3 className="font-bold text-lg">Login Error</h3>
+          <p className="py-4">{errorMessage}</p>
           <p className="">Have you an account? <a onClick={() => navigate("/register")} className='link text-purple-600'>Register </a> one now!</p>
           <div className="modal-action">
             <form method="dialog">
-              <button className="btn x-4 py-2 lg:px-5 lg:py-2.5 
+              <button onClick={() => setErrorMessage("")} className="btn x-4 py-2 lg:px-5 lg:py-2.5 
                             bg-white/20 border 
                             border-white/30 
                             rounded-lg 
